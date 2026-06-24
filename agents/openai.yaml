@@ -1,4 +1,4 @@
 interface:
   display_name: "WiFi 插座控制"
-  short_description: "通过局域网 TCP 调试智鸟 WiFi 插座"
-  default_prompt: "Use $wifi-plug-control to query or control the Smart Bird GSPM1B WiFi plug over LAN TCP."
+  short_description: "通过反连 TCP 控制智鸟 WiFi 插座"
+  default_prompt: "Use $wifi-plug-control to run a TCP server, wait for the Smart Bird GSPM1B plug to connect, identify its current LAN IP from the client address, and control the outlet."

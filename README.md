@@ -30,7 +30,7 @@ That means the plug may be pingable while refusing inbound TCP connections on it
 For the tested setup:
 
 ```text
-plug IP:      192.168.0.108
+plug IP:      learn from `client connected: <ip>:<port>` in server mode
 server IP:    192.168.0.103
 server port:  4444
 ```
@@ -58,9 +58,9 @@ quit
 If you have firmware or a proxy that listens for inbound TCP, client mode is also available:
 
 ```bash
-python3 scripts/smart_bird_plug.py client --host 192.168.0.108 --port 4444 info
-python3 scripts/smart_bird_plug.py client --host 192.168.0.108 --port 4444 on
-python3 scripts/smart_bird_plug.py client --host 192.168.0.108 --port 4444 off
+python3 scripts/smart_bird_plug.py client --host <plug-ip-from-server-mode> --port 4444 info
+python3 scripts/smart_bird_plug.py client --host <plug-ip-from-server-mode> --port 4444 on
+python3 scripts/smart_bird_plug.py client --host <plug-ip-from-server-mode> --port 4444 off
 ```
 
 ## Common Commands
@@ -101,7 +101,7 @@ Tested with:
 
 ```text
 model:   GSPM1B
-ip:      192.168.0.108
+ip:      learn from server-mode client address
 mac:     8cce4e513fbb
 version: 2.3.3
 ```

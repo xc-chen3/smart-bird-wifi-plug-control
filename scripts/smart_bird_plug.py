@@ -94,9 +94,10 @@ class Client:
 
 
 class TcpServer:
-    def __init__(self, host: str, port: int) -> None:
+    def __init__(self, host: str, port: int, once_command: str | None = None) -> None:
         self.host = host
         self.port = port
+        self.once_command = once_command
         self.selector = selectors.DefaultSelector()
         self.clients: dict[int, Client] = {}
         self.commands: "queue.Queue[str]" = queue.Queue()
@@ -130,6 +131,8 @@ class TcpServer:
         self.clients[sock.fileno()] = Client(sock=sock, addr=addr)
         self.selector.register(sock, selectors.EVENT_READ, self._read_client)
         print(f"client connected: {addr[0]}:{addr[1]}", flush=True)
+        if self.once_command:
+            self.commands.put(self.once_command)
 
     def _read_client(self, sock: socket.socket) -> None:
         client = self.clients.get(sock.fileno())
@@ -220,6 +223,11 @@ def run_server(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_wait(args: argparse.Namespace) -> int:
+    TcpServer(args.host, args.port, once_command=args.command).start()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="mode", required=True)
@@ -228,6 +236,16 @@ def build_parser() -> argparse.ArgumentParser:
     server.add_argument("--host", default="0.0.0.0")
     server.add_argument("--port", type=int, default=DEFAULT_PORT)
     server.set_defaults(func=run_server)
+
+    wait_on = sub.add_parser("wait-on", help="Run a TCP server, wait for plug connection, then turn outlet on")
+    wait_on.add_argument("--host", default="0.0.0.0")
+    wait_on.add_argument("--port", type=int, default=DEFAULT_PORT)
+    wait_on.set_defaults(func=run_wait, command="on")
+
+    wait_off = sub.add_parser("wait-off", help="Run a TCP server, wait for plug connection, then turn outlet off")
+    wait_off.add_argument("--host", default="0.0.0.0")
+    wait_off.add_argument("--port", type=int, default=DEFAULT_PORT)
+    wait_off.set_defaults(func=run_wait, command="off")
 
     client = sub.add_parser("client", help="Connect to a listening TCP endpoint and send one command")
     client.add_argument("command", choices=["info", "on", "off", "restart", "reset", "raw"])

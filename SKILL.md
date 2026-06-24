@@ -7,7 +7,7 @@ description: Control and debug Smart Bird / GemeOpen WiFi smart plugs such as GS
 
 ## Quick Start
 
-Use `scripts/smart_bird_plug.py`. Default target device IP is `192.168.0.108`.
+Use `scripts/smart_bird_plug.py`. Do not assume a fixed plug IP. Prefer server mode and identify the current plug IP from the client address printed when the plug connects.
 
 For normal TCP debugging, run a TCP server on the machine Codex is using, then configure the plug's custom TCP settings to connect to that host and port:
 
@@ -25,12 +25,21 @@ send {"type":"setting","timerEnable":1,"timerInterval":20}
 quit
 ```
 
+For one-shot control, wait for the plug to connect and then send a command automatically:
+
+```bash
+python3 wifi-plug-control/scripts/smart_bird_plug.py wait-on --host 0.0.0.0 --port 4444
+python3 wifi-plug-control/scripts/smart_bird_plug.py wait-off --host 0.0.0.0 --port 4444
+```
+
+The script prints `client connected: <ip>:<port>`; treat that `<ip>` as the plug's current LAN IP.
+
 If the user has a TCP proxy or firmware that listens on the device IP, use client mode:
 
 ```bash
-python3 wifi-plug-control/scripts/smart_bird_plug.py client --host 192.168.0.108 --port 4444 info
-python3 wifi-plug-control/scripts/smart_bird_plug.py client --host 192.168.0.108 --port 4444 on
-python3 wifi-plug-control/scripts/smart_bird_plug.py client --host 192.168.0.108 --port 4444 off
+python3 wifi-plug-control/scripts/smart_bird_plug.py client --host <plug-ip-from-server-mode> --port 4444 info
+python3 wifi-plug-control/scripts/smart_bird_plug.py client --host <plug-ip-from-server-mode> --port 4444 on
+python3 wifi-plug-control/scripts/smart_bird_plug.py client --host <plug-ip-from-server-mode> --port 4444 off
 ```
 
 ## Important TCP Model
@@ -59,7 +68,7 @@ If no client connects to server mode:
 2. Confirm the plug custom TCP settings point to the computer's LAN IP, not `127.0.0.1`.
 3. Confirm the chosen port is open through the OS firewall.
 4. Power-cycle the plug after saving custom TCP settings.
-5. Use `ping 192.168.0.108` only as a reachability check; ping success does not mean the plug is listening for TCP.
+5. Use ping only as a reachability check after learning the current IP from server mode; ping success does not mean the plug is listening for TCP.
 
 If commands receive no response:
 
